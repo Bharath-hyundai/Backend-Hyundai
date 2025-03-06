@@ -1,0 +1,109 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Image from "next/image";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Login failed");
+
+      localStorage.setItem("token", data.token);
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-black p-4">
+      {/* Left Side Image with Rotation Animation */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
+        className="hidden lg:flex justify-center items-center overflow-hidden"
+      >
+        <Image
+          src="https://www.hyundai.com/content/dam/hyundai/in/en/data/find-a-car/creta-electric/highlights/modelcretaevhome.png"
+          alt="Login Illustration"
+          width={500} // Set explicit width
+          height={500} // Set explicit height
+          className="w-full h-full object-cover"
+        />
+      </motion.div>
+
+      {/* Right Side Login Form */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full lg:w-1/2 flex items-center justify-center"
+      >
+        <div className="bg-white/30 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300">
+          <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
+            Welcome Back 👋
+          </h2>
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="text-gray-900 font-medium">Email</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 mt-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-gray-900 font-medium">Password</label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 mt-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white"
+                required
+              />
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-3 rounded-lg font-semibold hover:opacity-90 transition-all"
+            >
+              Login
+            </motion.button>
+          </form>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
