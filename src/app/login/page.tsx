@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -10,6 +10,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  // ✅ Redirect to dashboard if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +46,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      {/* Left Side Image with Rotation Animation */}
+      {/* Left Side Image with Animation */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
@@ -48,8 +56,8 @@ export default function LoginPage() {
         <Image
           src="https://www.hyundai.com/content/dam/hyundai/in/en/data/find-a-car/creta-electric/highlights/modelcretaevhome.png"
           alt="Login Illustration"
-          width={500} // Set explicit width
-          height={500} // Set explicit height
+          width={500}
+          height={500}
           className="w-full h-full object-cover"
         />
       </motion.div>
@@ -63,14 +71,14 @@ export default function LoginPage() {
       >
         <div className="bg-white/30 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300">
           <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
-            Welcome Back 👋
+            <img src="https://bharathyundai.com/wp-content/uploads/2024/06/wss-1.png" alt="Logo" />
           </h2>
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="text-gray-900 font-medium">Email</label>
+              <label className="text-white font-medium">Email</label>
               <input
                 type="email"
                 placeholder="Enter your email"
@@ -82,7 +90,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="text-gray-900 font-medium">Password</label>
+              <label className="text-white font-medium">Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -97,9 +105,9 @@ export default function LoginPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-3 rounded-lg font-semibold hover:opacity-90 transition-all"
+              className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg font-semibold hover:opacity-90 transition-all"
             >
-              Login
+              LOG IN
             </motion.button>
           </form>
         </div>
