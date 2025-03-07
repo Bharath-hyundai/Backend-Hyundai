@@ -77,7 +77,7 @@ export default function Dashboard() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Leads Data");
 
-    XLSX.writeFile(wb, "filtered_leads.xlsx");
+    XLSX.writeFile(wb, "Hyundai-Leads.xlsx");
   };
 
   const handleLogout = () => {
