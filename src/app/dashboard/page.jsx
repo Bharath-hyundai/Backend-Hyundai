@@ -10,8 +10,9 @@ export default function Dashboard() {
   const router = useRouter();
   const [leads, setLeads] = useState(null);
   const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState(""); // ⬅️ Start Date
+  const [endDate, setEndDate] = useState(""); // ⬅️ End Date
 
-  // ✅ Redirect if not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -19,44 +20,50 @@ export default function Dashboard() {
     }
   }, [router]);
 
-  // ✅ Fetch leads from API
   useEffect(() => {
     fetch("/api/leads")
       .then((res) => res.json())
       .then((data) => {
-        console.log("API Response:", data);
         if (Array.isArray(data)) {
           setLeads(data);
         } else {
           setLeads([]);
         }
       })
-      .catch((err) => {
-        console.error("Error fetching leads:", err);
+      .catch(() => {
         setError("Failed to load data.");
         setLeads([]);
       });
   }, []);
 
   // ✅ Format Date and Time
-  const formatDate = (isoString) => {
-    if (!isoString) return "N/A";
-    return new Date(isoString).toLocaleDateString(); // MM/DD/YYYY
-  };
+  const formatDate = (isoString) => (isoString ? new Date(isoString).toISOString().split("T")[0] : "N/A");
+  const formatTime = (isoString) => (isoString ? new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true }) : "N/A");
 
-  const formatTime = (isoString) => {
-    if (!isoString) return "N/A";
-    return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
-  };
-
-  // ✅ Download Excel File
+  // ✅ Filtered Excel Download
   const downloadExcel = () => {
     if (!leads || leads.length === 0) {
       alert("No data to export.");
       return;
     }
 
-    const formattedData = leads.map((lead, index) => ({
+    // Convert input dates to Date objects
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    // Filter leads based on date range
+    const filteredLeads = leads.filter((lead) => {
+      const leadDate = new Date(lead.createdAt);
+      return (!start || leadDate >= start) && (!end || leadDate <= end);
+    });
+
+    if (filteredLeads.length === 0) {
+      alert("No data found for selected date range.");
+      return;
+    }
+
+    // Format data for Excel
+    const formattedData = filteredLeads.map((lead, index) => ({
       ID: index + 1,
       Name: lead.name,
       Phone: lead.mobile,
@@ -70,10 +77,9 @@ export default function Dashboard() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Leads Data");
 
-    XLSX.writeFile(wb, "leads_data.xlsx");
+    XLSX.writeFile(wb, "filtered_leads.xlsx");
   };
 
-  // ✅ Logout Function
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/login");
@@ -84,12 +90,9 @@ export default function Dashboard() {
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col justify-between border-r bg-black text-white p-4 h-screen">
         <div>
-          {/* Logo */}
           <h1 className="text-lg font-bold flex justify-center">
             <img src="https://bharathyundai.com/wp-content/uploads/2024/06/wss-1.png" alt="Logo" className="h-12" />
           </h1>
-
-          {/* Navigation */}
           <nav className="mt-8 space-y-2">
             <Link href="#" className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-800 transition">
               <Home className="h-5 w-5" />
@@ -97,8 +100,6 @@ export default function Dashboard() {
             </Link>
           </nav>
         </div>
-
-        {/* Logout Button */}
         <div className="mt-auto pt-4">
           <button
             onClick={handleLogout}
@@ -115,16 +116,31 @@ export default function Dashboard() {
         <header className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-4">
             <h2 className="text-2xl font-bold">Generals</h2>
-            <button
-              onClick={downloadExcel}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md flex items-center gap-2 hover:bg-green-700 transition"
-            >
-              <Download className="h-5 w-5" />
-              Download Data
-            </button>
           </div>
-          <input type="text" placeholder="Search" className="p-2 border rounded-md" />
         </header>
+
+        {/* Date Filters */}
+        <div className="flex gap-4 mb-4">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <button
+            onClick={downloadExcel}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md flex items-center gap-2 hover:bg-green-700 transition"
+          >
+            <Download className="h-5 w-5" />
+            Download Data
+          </button>
+        </div>
 
         {/* Table */}
         <div className="mt-4 bg-white shadow-lg rounded-lg overflow-hidden">
