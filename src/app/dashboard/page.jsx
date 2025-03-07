@@ -1,23 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Home, Download } from "lucide-react";
+import { Home, Download, LogOut } from "lucide-react";
 import * as XLSX from "xlsx";
 
 export default function Dashboard() {
-  const [leads, setLeads] = useState([]);
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const [leads, setLeads] = useState(null);
+  const [error, setError] = useState(null);
 
+  // ✅ Redirect if not logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, [router]);
+
+  // ✅ Fetch leads from API
   useEffect(() => {
     fetch("/api/leads")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch leads");
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         console.log("API Response:", data);
-        setLeads(Array.isArray(data) ? data : []);
+        if (Array.isArray(data)) {
+          setLeads(data);
+        } else {
+          setLeads([]);
+        }
       })
       .catch((err) => {
         console.error("Error fetching leads:", err);
@@ -26,22 +38,18 @@ export default function Dashboard() {
       });
   }, []);
 
-  // Function to format date and time
+  // ✅ Format Date and Time
   const formatDate = (isoString) => {
     if (!isoString) return "N/A";
-    return new Date(isoString).toLocaleDateString(); // Format: MM/DD/YYYY
+    return new Date(isoString).toLocaleDateString(); // MM/DD/YYYY
   };
 
   const formatTime = (isoString) => {
     if (!isoString) return "N/A";
-    return new Date(isoString).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
   };
 
-  // Function to download Excel file
+  // ✅ Download Excel File
   const downloadExcel = () => {
     if (!leads || leads.length === 0) {
       alert("No data to export.");
@@ -49,7 +57,7 @@ export default function Dashboard() {
     }
 
     const formattedData = leads.map((lead, index) => ({
-      ID: index + 1, // Sequential ID
+      ID: index + 1,
       Name: lead.name,
       Phone: lead.mobile,
       Email: lead.email,
@@ -65,17 +73,41 @@ export default function Dashboard() {
     XLSX.writeFile(wb, "leads_data.xlsx");
   };
 
+  // ✅ Logout Function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] bg-gray-100">
       {/* Sidebar */}
-      <aside className="hidden border-r bg-black text-white md:flex flex-col p-4">
-        <h1 className="text-lg font-bold">BHARATH HYUNDAI</h1>
-        <nav className="mt-6">
-          <Link href="#" className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-800">
-            <Home className="h-5 w-5" />
-            All Data
-          </Link>
-        </nav>
+      <aside className="hidden md:flex flex-col justify-between border-r bg-black text-white p-4 h-screen">
+        <div>
+          {/* Logo */}
+          <h1 className="text-lg font-bold flex justify-center">
+            <img src="https://bharathyundai.com/wp-content/uploads/2024/06/wss-1.png" alt="Logo" className="h-12" />
+          </h1>
+
+          {/* Navigation */}
+          <nav className="mt-8 space-y-2">
+            <Link href="#" className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-800 transition">
+              <Home className="h-5 w-5" />
+              <span className="text-sm font-medium">All Data</span>
+            </Link>
+          </nav>
+        </div>
+
+        {/* Logout Button */}
+        <div className="mt-auto pt-4">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-700 transition"
+          >
+            <LogOut className="h-5 w-5" />
+            Log Out
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -83,7 +115,6 @@ export default function Dashboard() {
         <header className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-4">
             <h2 className="text-2xl font-bold">Generals</h2>
-            {/* ✅ Download Button Next to "Generals" */}
             <button
               onClick={downloadExcel}
               className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-md flex items-center gap-2 hover:bg-green-700 transition"
@@ -110,14 +141,17 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {/* Loading State */}
-              {error ? (
+              {leads === null ? (
                 <tr>
-                  <td colSpan="7" className="p-3 text-center text-red-500">{error}</td>
+                  <td colSpan="7" className="p-4 text-center">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="7" className="p-4 text-center text-red-500">{error}</td>
                 </tr>
               ) : leads.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="p-3 text-center">No data available</td>
+                  <td colSpan="7" className="p-4 text-center">No data available</td>
                 </tr>
               ) : (
                 leads.map((lead, index) => (
