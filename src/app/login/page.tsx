@@ -71,7 +71,7 @@ export default function LoginPage() {
       >
         <div className="bg-white/30 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300">
           <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
-            <img src="https://bharathyundai.com/wp-content/uploads/2024/06/wss-1.png" alt="Logo" />
+            <img src="/Hyundai-logo.png" alt="Logo" />
           </h2>
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
