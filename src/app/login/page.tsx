@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react"; // Importing icons
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   // ✅ Redirect to dashboard if already logged in
@@ -72,13 +72,15 @@ export default function LoginPage() {
         className="w-full lg:w-1/2 flex items-center justify-center"
       >
         <div className="bg-white/30 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300">
-          <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-6">
-            <img src="/Hyundai-logo.png" alt="Logo" />
-          </h2>
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <Image src="/Hyundai-logo.png" alt="Logo" width={200} height={50} priority />
+          </div>
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email Input */}
             <div>
               <label className="text-white font-medium">Email</label>
               <input
@@ -91,14 +93,15 @@ export default function LoginPage() {
               />
             </div>
 
-            <div>
+            {/* Password Input with Toggle */}
+            <div className="relative">
               <label className="text-white font-medium">Password</label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 mt-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white"
+                className="w-full p-3 mt-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white pr-10"
                 required
               />
               <button
@@ -110,6 +113,7 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {/* Submit Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
