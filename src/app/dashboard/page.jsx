@@ -150,7 +150,7 @@ export default function Dashboard() {
                 <th className="p-3">Email</th>
                 <th className="p-3">Model</th>
                 <th className="p-3">Date</th>
-                <th className="p-3">Time</th>
+{/*                 <th className="p-3">Time</th> */}
               </tr>
             </thead>
             <tbody>
@@ -162,7 +162,7 @@ export default function Dashboard() {
                   <td className="p-3">{lead.email}</td>
                   <td className="p-3">{lead.model}</td>
                   <td className="p-3">{formatDate(lead.createdAt)}</td>
-                  <td className="p-3">{formatTime(lead.createdAt)}</td>
+{/*                   <td className="p-3">{formatTime(lead.createdAt)}</td> */}
                 </tr>
               ))}
             </tbody>
