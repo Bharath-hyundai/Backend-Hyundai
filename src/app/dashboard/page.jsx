@@ -65,13 +65,13 @@ export default function Dashboard() {
       Email: lead.email,
       Model: lead.model,
       Date: formatDate(lead.createdAt),
-      Time: formatTime(lead.createdAt),
+      // Time: formatTime(lead.createdAt),
     }));
 
     const ws = XLSX.utils.json_to_sheet(formattedData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Leads Data");
-    XLSX.writeFile(wb, "filtered_leads.xlsx");
+    XLSX.writeFile(wb, "Bharathyundai_leads.xlsx");
   };
 
   const handleLogout = () => {
