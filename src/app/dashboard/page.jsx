@@ -86,7 +86,7 @@ export default function Dashboard() {
         <div>
           <div className="flex justify-between items-center">
             <h1 className="text-lg font-bold">
-              <img src="https://bharathyundai.com/wp-content/uploads/2024/06/wss-1.png" alt="Logo" className="h-12" />
+              <img src="/Hyundai-logo.png" alt="Logo" className="h-12" />
             </h1>
             <button onClick={() => setMenuOpen(false)} className="md:hidden text-white">
               <X className="h-6 w-6" />
